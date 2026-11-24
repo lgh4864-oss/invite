@@ -24,7 +24,7 @@
   --f-hand:'Gaegu','Nanum Pen Script','Gamja Flower','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   --f-tab:'Jua','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   --f-doc:'Gowun Dodum','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
-  --dock-h:92px;
+  --dock-h:72px;
   --u:5px; /* 종이 폭의 1% (JS가 갱신) */
 }
 *{box-sizing:border-box}
@@ -57,6 +57,7 @@ body{
   box-shadow:0 18px 40px rgba(0,0,0,.55);
   overflow:hidden;
   background:var(--paper);
+  -webkit-perspective:1600px;perspective:1600px;
 }
 .page{
   position:absolute;top:0;left:0;right:0;bottom:0;
@@ -183,33 +184,69 @@ textarea.field{padding-top:1%;overflow:hidden}
 }
 .tab[aria-selected="true"]{height:50px;background:var(--paper);color:var(--ink)}
 .tab:focus,.next:focus,.seal:focus{outline:3px solid #ffe7a8;outline-offset:2px}
+/* 오른쪽 가운데 깜빡이는 다음 화살표 (사건 파일 · 임명장 장에서만) */
 .next{
-  flex:none;width:76px;height:76px;margin-left:4px;border-radius:50%;
-  border:0;cursor:pointer;color:#fff3e0;
-  font-family:var(--f-tab);font-size:14px;line-height:1.15;
+  position:absolute;right:2.5%;top:50%;margin-top:-26px;z-index:6;
+  width:52px;height:52px;border-radius:50%;border:0;padding:0;cursor:pointer;color:#fff3e0;
+  font-family:var(--f-tab);font-size:22px;line-height:1;
   background:radial-gradient(circle at 35% 30%,var(--wax-hi),var(--wax) 62%,#6d1111);
-  box-shadow:0 0 0 3px #7a1818 inset,0 0 0 5px rgba(255,255,255,.08) inset,0 6px 14px rgba(0,0,0,.55);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-shadow:0 1px 0 rgba(0,0,0,.4);
-  animation:pulse 2.2s ease-in-out infinite;
+  box-shadow:0 0 0 2px rgba(255,235,200,.55) inset,0 4px 12px rgba(0,0,0,.55);
+  display:none;align-items:center;justify-content:center;
+  text-shadow:0 1px 0 rgba(0,0,0,.4);
+  animation:blink 1.3s ease-in-out infinite;
 }
-.next span{display:block;font-size:19px;margin-top:2px}
-.next:active{-webkit-transform:scale(.94);transform:scale(.94)}
-.next[disabled]{animation:none;-webkit-filter:grayscale(.7);filter:grayscale(.7);opacity:.7;cursor:default}
-@keyframes pulse{0%,100%{-webkit-transform:scale(1);transform:scale(1)}50%{-webkit-transform:scale(1.07);transform:scale(1.07)}}
+.next::after{content:"";position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px;border-radius:50%;border:2px solid rgba(255,235,200,.8);animation:ringout 1.3s ease-out infinite;pointer-events:none}
+.next:active{-webkit-transform:scale(.92);transform:scale(.92)}
+.next[disabled]{animation:none;opacity:.4;cursor:default}
+@keyframes blink{
+  0%,100%{opacity:.4;-webkit-transform:translateX(0);transform:translateX(0)}
+  50%{opacity:1;-webkit-transform:translateX(5px);transform:translateX(5px)}
+}
+@keyframes ringout{0%{opacity:.9;-webkit-transform:scale(.9);transform:scale(.9)}100%{opacity:0;-webkit-transform:scale(1.5);transform:scale(1.5)}}
 
-.toast{
-  position:absolute;left:50%;bottom:calc(var(--dock-h) + env(safe-area-inset-bottom,0px) + 8px);
-  -webkit-transform:translate(-50%,10px);transform:translate(-50%,10px);z-index:30;
-  background:#f1d9a6;color:var(--ink);border:2px solid var(--ink);border-radius:8px;
-  padding:9px 14px;font-family:var(--f-hand);font-weight:700;font-size:17px;
-  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center;
+/* 마지막 장: 보고서 종이 하단 제출 버튼 (종이 크기 그대로) */
+/* 보고서의 갈색 라벨 탭(코드네임·특기…)과 같은 톤 */
+.submit{
+  position:absolute;left:8%;top:89.2%;width:56%;height:7%;
+  border:0;border-radius:8px;cursor:pointer;padding:0;
+  font-family:var(--f-tab);font-size:max(15px,calc(var(--u)*4.4));letter-spacing:.06em;color:#f6e2b5;white-space:nowrap;
+  background:linear-gradient(to bottom,#6a4026,#4a2a17);
+  box-shadow:0 0 0 1px #2e170a,0 0 0 3px #e9c98f inset,0 0 0 4px #4a2a17 inset,0 3px 6px rgba(60,30,10,.45);
+  text-shadow:0 1px 0 rgba(0,0,0,.5);
+  animation:subpulse 1.8s ease-in-out infinite;
 }
-.toast.on{opacity:1;-webkit-transform:translate(-50%,0);transform:translate(-50%,0)}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-@media (max-width:380px){.tab{font-size:12px}.next{width:68px;height:68px;font-size:13px}}
+.submit:focus{outline:3px solid #9c1f1f;outline-offset:2px}
+.submit:active{-webkit-transform:scale(.97);transform:scale(.97)}
+.submit[disabled]{animation:none;opacity:.6;cursor:default}
+@keyframes subpulse{
+  0%,100%{box-shadow:0 0 0 1px #2e170a,0 0 0 3px #e9c98f inset,0 0 0 4px #4a2a17 inset,0 3px 6px rgba(60,30,10,.45),0 0 0 0 rgba(156,31,31,.55)}
+  50%{box-shadow:0 0 0 1px #2e170a,0 0 0 3px #e9c98f inset,0 0 0 4px #4a2a17 inset,0 3px 6px rgba(60,30,10,.45),0 0 0 7px rgba(156,31,31,0)}
+}
+
+/* 종이 넘기기: 현재 장이 왼쪽 모서리를 축으로 넘어간다 */
+.page.no-trans{transition:none!important}
+/* 종이 넘기기: 현재 장이 왼쪽 모서리를 축으로 넘어간다 */
+.page.flipping{
+  z-index:4;opacity:1;visibility:visible;pointer-events:none;
+  -webkit-transform-origin:0 50%;transform-origin:0 50%;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+  -webkit-animation:pageflip .85s cubic-bezier(.5,0,.75,.4) forwards;animation:pageflip .85s cubic-bezier(.5,0,.75,.4) forwards;
+  transition:none;
+}
+.page.flipping::after{
+  content:"";position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;
+  background:linear-gradient(to right,rgba(40,20,8,.55),rgba(40,20,8,0) 70%);
+  -webkit-animation:flipshade .85s ease-in forwards;animation:flipshade .85s ease-in forwards;
+}
+@-webkit-keyframes pageflip{0%{-webkit-transform:rotateY(0);transform:rotateY(0)}100%{-webkit-transform:rotateY(-105deg);transform:rotateY(-105deg)}}
+@keyframes pageflip{0%{-webkit-transform:rotateY(0);transform:rotateY(0)}100%{-webkit-transform:rotateY(-105deg);transform:rotateY(-105deg)}}
+@-webkit-keyframes flipshade{0%{opacity:0}100%{opacity:1}}
+@keyframes flipshade{0%{opacity:0}100%{opacity:1}}
+
+@media (max-width:380px){.tab{font-size:12px}.next{width:46px;height:46px;margin-top:-23px}}
 @media (prefers-reduced-motion:reduce){
   .page,.done,.done-card,.tab{transition:none}
-  .next,.seal::after{animation:none}
+  .next,.next::after,.submit,.seal::after{animation:none}
 }
 </style>
 </head>
@@ -253,7 +290,10 @@ textarea.field{padding-top:1%;overflow:hidden}
     <textarea class="field" id="f-hide" name="hideout" maxlength="80" placeholder="ex) 침대 이불 속"></textarea>
     <label class="sr" for="f-hobby">취미</label>
     <textarea class="field" id="f-hobby" name="hobby" maxlength="80" placeholder="ex) 넷플릭스 정주행"></textarea>
+    <button class="submit" id="submit-btn" type="button" aria-label="보고서 제출하기">✉ 보고서 제출하기</button>
   </form>
+
+  <button class="next" id="next" type="button" aria-label="다음 장으로">▶</button>
 
   <div class="done" id="done" role="status" aria-live="polite">
     <div class="done-card">
@@ -276,7 +316,6 @@ textarea.field{padding-top:1%;overflow:hidden}
       <button class="tab" role="tab" type="button" data-go="2" aria-selected="false">임명장</button>
       <button class="tab" role="tab" type="button" data-go="3" aria-selected="false" style="margin-right:0">보고서</button>
     </div>
-    <button class="next" id="next" type="button" aria-label="다음 장으로">다음<span>▶</span></button>
   </div>
 </nav>
 </div>
@@ -290,6 +329,8 @@ textarea.field{padding-top:1%;overflow:hidden}
   var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
   var tabs  = Array.prototype.slice.call(document.querySelectorAll('.tab'));
   var next  = document.getElementById('next');
+  var submitBtn = document.getElementById('submit-btn');
+  var flipTimer = null, flipEl = null;
   var form  = document.getElementById('report');
   var toastEl = document.getElementById('toast');
   var p0 = document.getElementById('p0');
@@ -369,22 +410,36 @@ textarea.field{padding-top:1%;overflow:hidden}
 
   function go(n){
     n = Math.max(0, Math.min(pages.length-1, n));
+    var from = cur;
+    // 사건 파일 → 임명장 → 보고서: 앞으로 갈 때 종이 넘기는 효과
+    var doFlip = !reduced() && n>from && from>=1 && from<=2 && pages[from].className.indexOf('is-active')>-1;
+    if(flipTimer){ clearTimeout(flipTimer); flipTimer=null; }
+    if(flipEl){ flipEl.classList.remove('flipping'); flipEl=null; }
     for(var i=0;i<pages.length;i++){
       var p = pages[i];
       if(i===n) p.classList.add('is-active'); else p.classList.remove('is-active');
       if(i<n) p.classList.add('is-left'); else p.classList.remove('is-left');
       p.setAttribute('aria-hidden', i===n ? 'false' : 'true');
     }
+    if(doFlip){
+      var out = pages[from], inc = pages[n];
+      inc.classList.add('no-trans');
+      out.classList.remove('is-left');
+      out.classList.add('flipping');
+      flipEl = out;
+      void out.offsetWidth;
+      flipTimer = setTimeout(function(){
+        out.classList.remove('flipping');
+        if(out.className.indexOf('is-active')<0) out.classList.add('is-left');
+        inc.classList.remove('no-trans');
+        flipEl = null; flipTimer = null;
+      }, 880);
+    }
     for(var j=0;j<tabs.length;j++){ tabs[j].setAttribute('aria-selected', j===n ? 'true':'false'); }
     cur = n;
-    if(n===3){
-      next.innerHTML = '제출<span>✉</span>';
-      next.setAttribute('aria-label','보고서 제출하기');
-    }else{
-      next.innerHTML = '다음<span>▶</span>';
-      next.setAttribute('aria-label','다음 장으로');
-    }
-    next.disabled = sent || opening;
+    // 오른쪽 가운데 화살표: 사건 파일 · 임명장 장에서만. 첫 장은 직인, 마지막 장은 종이 아래 제출 버튼.
+    next.style.display = (n===1 || n===2) ? 'flex' : 'none';
+    next.disabled = opening;
     try{ window.scrollTo(0,0); }catch(_){}
   }
 
@@ -392,7 +447,7 @@ textarea.field{padding-top:1%;overflow:hidden}
   function openLetter(){
     if(opening) return;
     if(reduced()){ go(1); return; }
-    opening = true; next.disabled = true;
+    opening = true;
     p0.classList.add('crack');
     setTimeout(function(){ p0.classList.add('opened'); }, 350);
     setTimeout(function(){ p0.classList.add('zoom'); }, 850);
@@ -411,10 +466,11 @@ textarea.field{padding-top:1%;overflow:hidden}
   });
 
   bindTap(next, function(){
+    if(opening) return;
     if(cur===0) openLetter();
     else if(cur<3) go(cur+1);
-    else submit();
   });
+  bindTap(submitBtn, function(){ submit(); });
 
   // 좌우 스와이프 (입력 중에는 제외)
   var sx=null, sy=null;
@@ -481,17 +537,17 @@ textarea.field{padding-top:1%;overflow:hidden}
       org: v('org'), name: v('name'), codename: v('codename'),
       skill: v('skill'), weakness: v('weakness'), hideout: v('hideout'), hobby: v('hobby')
     };
-    sending = true; next.disabled = true; next.innerHTML='전송<span>…</span>';
+    sending = true; submitBtn.disabled = true; submitBtn.innerHTML='전송 중…';
 
     function finish(){
       sending=false; sent=true;
       document.getElementById('done-name').textContent = data.name;
       document.getElementById('done').classList.add('on');
-      next.disabled = true; next.innerHTML='완료<span>✔</span>';
+      submitBtn.disabled = true; submitBtn.innerHTML='✔ 제출 완료';
       try{ localStorage.removeItem(KEY); }catch(_){}
     }
     function fail(){
-      sending=false; next.disabled=false; next.innerHTML='제출<span>✉</span>';
+      sending=false; submitBtn.disabled=false; submitBtn.innerHTML='✉ 보고서 제출하기';
       toast('전송이 안 됐어요. 연결을 확인하고 다시 눌러 주세요');
     }
 
